@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecentFileCacheParser", "Re
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecentFileCache", "RecentFileCache\RecentFileCache.csproj", "{AAB3D5E8-1CE9-48A3-B3E5-18A4ED2E5C06}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecentFileCache.Test", "RecentFileCache.Test\RecentFileCache.Test.csproj", "{E6EB3148-69F7-4526-8EC9-E2C5B70526BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{AAB3D5E8-1CE9-48A3-B3E5-18A4ED2E5C06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAB3D5E8-1CE9-48A3-B3E5-18A4ED2E5C06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAB3D5E8-1CE9-48A3-B3E5-18A4ED2E5C06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6EB3148-69F7-4526-8EC9-E2C5B70526BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6EB3148-69F7-4526-8EC9-E2C5B70526BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6EB3148-69F7-4526-8EC9-E2C5B70526BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6EB3148-69F7-4526-8EC9-E2C5B70526BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
