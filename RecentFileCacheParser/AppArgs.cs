@@ -9,5 +9,7 @@
         public string CsvDirectory { get; set; }
 
         public bool Quiet { get; set; }
+
+        public bool CsvSeparator { get; set; }
     }
 }

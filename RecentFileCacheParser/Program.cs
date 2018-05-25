@@ -22,10 +22,11 @@ namespace RecentFileCacheParser
         private static FluentCommandLineParser<AppArgs> _fluentCommandLineParser;
         private static readonly string _dateTimeFormat = "yyyy-MM-dd HH:mm:ss";
 
+        private static string exportExt = "tsv";
+
         private static void Main(string[] args)
         {
             ExceptionlessClient.Default.Startup("Wdlq68AwLteBtuqOwNv5rgphcMxzKuHKJQAVK5JN");
-
 
             SetupNLog();
 
@@ -63,6 +64,11 @@ namespace RecentFileCacheParser
                 .WithDescription(
                     "Only show the filename being processed vs all output. Useful to speed up exporting to json and/or csv\r\n")
                 .SetDefault(false);
+
+            _fluentCommandLineParser.Setup(arg => arg.CsvSeparator)
+                .As("cs")
+                .WithDescription(
+                    "When true, use comma instead of tab for field separator. Default is true").SetDefault(true);
 
 
             var header =
@@ -127,6 +133,11 @@ namespace RecentFileCacheParser
                     _logger.Info("");
                 }
 
+                if (_fluentCommandLineParser.Object.CsvSeparator)
+                {
+                    exportExt = "csv";
+                }
+
                 var sw = new Stopwatch();
                 sw.Start();
 
@@ -178,19 +189,23 @@ namespace RecentFileCacheParser
                         }
 
                         var outName =
-                            $"{DateTimeOffset.Now:yyyyMMddHHmmss}_RecentFileCacheParser_Output.tsv";
+                            $"{DateTimeOffset.Now:yyyyMMddHHmmss}_RecentFileCacheParser_Output.{exportExt}";
                         var outFile = Path.Combine(_fluentCommandLineParser.Object.CsvDirectory, outName);
 
                         _fluentCommandLineParser.Object.CsvDirectory =
                             Path.GetFullPath(outFile);
                         _logger.Warn(
-                            $"CSV (tab separated) output will be saved to '{Path.GetFullPath(outFile)}'");
+                            $"CSV output will be saved to '{Path.GetFullPath(outFile)}'");
 
                         try
                         {
                             sw1 = new StreamWriter(outFile);
                             var csv = new CsvWriter(sw1);
-                            csv.Configuration.Delimiter = $"{'\t'}";
+                            if (_fluentCommandLineParser.Object.CsvSeparator == false)
+                            {
+                                csv.Configuration.Delimiter = "\t";
+                            }
+
                             csv.Configuration.HasHeaderRecord = true;
 
 
@@ -209,7 +224,7 @@ namespace RecentFileCacheParser
                         catch (Exception ex)
                         {
                             _logger.Error(
-                                $"Unable to open '{outFile}' for writing. CSV export canceled. Error: {ex.Message}");
+                                $"Unable to open '{outFile}' for writing. Export canceled. Error: {ex.Message}");
                         }
                     }
 
@@ -334,5 +349,7 @@ namespace RecentFileCacheParser
         public DateTimeOffset SourceAccessed { get; set; }
 
         public string Filename { get; set; }
+
+    
     }
 }
