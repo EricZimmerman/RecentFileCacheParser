@@ -45,7 +45,7 @@ namespace RecentFileCacheParser
             _fluentCommandLineParser.Setup(arg => arg.CsvDirectory)
                 .As("csv")
                 .WithDescription(
-                    "Directory to save CSV (tab separated) formatted results to. Be sure to include the full path in double quotes");
+                    "Directory to save CSV formatted results to. Be sure to include the full path in double quotes");
 
 
             _fluentCommandLineParser.Setup(arg => arg.JsonDirectory)
