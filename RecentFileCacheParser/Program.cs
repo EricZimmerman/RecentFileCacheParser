@@ -23,7 +23,7 @@ namespace RecentFileCacheParser
         private static FluentCommandLineParser<AppArgs> _fluentCommandLineParser;
         private static readonly string _dateTimeFormat = "yyyy-MM-dd HH:mm:ss";
 
-        private static string exportExt = "tsv";
+      
 
         public static bool IsAdministrator()
         {
@@ -55,6 +55,11 @@ namespace RecentFileCacheParser
                 .As("csv")
                 .WithDescription(
                     "Directory to save CSV formatted results to. Be sure to include the full path in double quotes");
+            _fluentCommandLineParser.Setup(arg => arg.CsvName)
+                .As("csvf")
+                .WithDescription(
+                    "File name to save CSV formatted results to. When present, overrides default name");
+
 
 
             _fluentCommandLineParser.Setup(arg => arg.JsonDirectory)
@@ -74,11 +79,7 @@ namespace RecentFileCacheParser
                     "Only show the filename being processed vs all output. Useful to speed up exporting to json and/or csv\r\n")
                 .SetDefault(false);
 
-            _fluentCommandLineParser.Setup(arg => arg.CsvSeparator)
-                .As("cs")
-                .WithDescription(
-                    "When true, use comma instead of tab for field separator. Default is true").SetDefault(true);
-
+       
 
             var header =
                 $"RecentFileCacheParser version {Assembly.GetExecutingAssembly().GetName().Version}" +
@@ -147,10 +148,7 @@ namespace RecentFileCacheParser
                     _logger.Info("");
                 }
 
-                if (_fluentCommandLineParser.Object.CsvSeparator)
-                {
-                    exportExt = "csv";
-                }
+              
 
                 var sw = new Stopwatch();
                 sw.Start();
@@ -203,8 +201,16 @@ namespace RecentFileCacheParser
                         }
 
                         var outName =
-                            $"{DateTimeOffset.Now:yyyyMMddHHmmss}_RecentFileCacheParser_Output.{exportExt}";
+                            $"{DateTimeOffset.Now:yyyyMMddHHmmss}_RecentFileCacheParser_Output.csv";
+
+                        if (_fluentCommandLineParser.Object.CsvName.IsNullOrEmpty() == false)
+                        {
+                            outName = Path.GetFileName(_fluentCommandLineParser.Object.CsvName);
+                        }
+
                         var outFile = Path.Combine(_fluentCommandLineParser.Object.CsvDirectory, outName);
+
+                   
 
                         _fluentCommandLineParser.Object.CsvDirectory =
                             Path.GetFullPath(outFile);
@@ -215,10 +221,6 @@ namespace RecentFileCacheParser
                         {
                             sw1 = new StreamWriter(outFile);
                             var csv = new CsvWriter(sw1);
-                            if (_fluentCommandLineParser.Object.CsvSeparator == false)
-                            {
-                                csv.Configuration.Delimiter = "\t";
-                            }
 
                             csv.Configuration.HasHeaderRecord = true;
 

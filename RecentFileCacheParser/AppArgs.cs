@@ -7,9 +7,10 @@
         public bool JsonPretty { get; set; }
 
         public string CsvDirectory { get; set; }
+        public string CsvName { get; set; }
 
         public bool Quiet { get; set; }
 
-        public bool CsvSeparator { get; set; }
+        
     }
 }
