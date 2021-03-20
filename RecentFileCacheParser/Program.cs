@@ -223,15 +223,14 @@ namespace RecentFileCacheParser
                             sw1 = new StreamWriter(outFile);
                             var csv = new CsvWriter(sw1,CultureInfo.InvariantCulture);
 
-                            csv.Configuration.HasHeaderRecord = true;
 
 
-                            var foo = csv.Configuration.AutoMap<CsvOut>();
+                            var foo = csv.Context.AutoMap<CsvOut>();
                             foo.Map(t => t.SourceAccessed)
-                                .ConvertUsing(t => t.SourceAccessed.ToString(_dateTimeFormat));
-                            foo.Map(t => t.SourceCreated).ConvertUsing(t => t.SourceCreated.ToString(_dateTimeFormat));
+                                .Convert(t => t.Value.SourceAccessed.ToString(_dateTimeFormat));
+                            foo.Map(t => t.SourceCreated).Convert(t => t.Value.SourceCreated.ToString(_dateTimeFormat));
                             foo.Map(t => t.SourceModified)
-                                .ConvertUsing(t => t.SourceModified.ToString(_dateTimeFormat));
+                                .Convert(t => t.Value.SourceModified.ToString(_dateTimeFormat));
 
                             csv.WriteHeader(typeof(CsvOut));
                             csv.NextRecord();
