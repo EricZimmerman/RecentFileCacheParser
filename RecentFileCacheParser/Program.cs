@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.Help;
+using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security.Principal;
+using System.Threading.Tasks;
 using Exceptionless;
-using Fclp;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
@@ -21,20 +25,37 @@ namespace RecentFileCacheParser
     internal class Program
     {
         private static Logger _logger;
-        private static FluentCommandLineParser<AppArgs> _fluentCommandLineParser;
         private static readonly string _dateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+        
+        private static string Header =
+            $"RecentFileCacheParser version {Assembly.GetExecutingAssembly().GetName().Version}" +
+            "\r\n\r\nAuthor: Eric Zimmerman (saericzimmerman@gmail.com)" +
+            "\r\nhttps://github.com/EricZimmerman/RecentFileCacheParser";
 
-      
 
+        private static string Footer = @"Examples: RecentFileCacheParser.exe -f ""C:\Temp\RecentFileCache.bcf"" --csv ""c:\temp""" +
+                     "\r\n\t " +
+                     @"   RecentFileCacheParser.exe -f ""C:\Temp\RecentFileCache.bcf"" --json ""D:\jsonOutput"" --jsonpretty" +
+                     "\r\n\t " +
+                     "\r\n\t" +
+                     "    Short options (single letter) are prefixed with a single dash. Long commands are prefixed with two dashes";
+
+        private static RootCommand _rootCommand;
+        
         public static bool IsAdministrator()
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return true;
+            }
+            
             var identity = WindowsIdentity.GetCurrent();
             var principal = new WindowsPrincipal(identity);
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
      
 
-        private static void Main(string[] args)
+        private static async Task Main(string[] args)
         {
             ExceptionlessClient.Default.Startup("Wdlq68AwLteBtuqOwNv5rgphcMxzKuHKJQAVK5JN");
 
@@ -42,97 +63,62 @@ namespace RecentFileCacheParser
 
             _logger = LogManager.GetCurrentClassLogger();
 
-            _fluentCommandLineParser = new FluentCommandLineParser<AppArgs>
+            _rootCommand = new RootCommand
             {
-                IsCaseSensitive = false
+                new Option<string>(
+                    "-f",
+                    "File to process. Required"),
+
+             
+                new Option<string>(
+                    "--csv",
+                    "Directory to save CSV formatted results to. Be sure to include the full path in double quotes"),
+
+                new Option<string>(
+                    "--csvf",
+                    "File name to save CSV formatted results to. When present, overrides default name"),
+
+                new Option<string>(
+                    "--json",
+                    "Directory to save json representation to. Use --pretty for a more human readable layout"),
+                new Option<bool>(
+                    "--pretty",
+                    getDefaultValue:()=>false,
+                    "When exporting to json, use a more human readable layout"),
+                new Option<bool>(
+                    "-q",
+                    getDefaultValue:()=>false,
+                    "Only show the filename being processed vs all output. Useful to speed up exporting to json and/or csv"),
+
             };
 
-            _fluentCommandLineParser.Setup(arg => arg.File)
-                .As('f')
-                .WithDescription("File to process. Required");
+            _rootCommand.Description = Header + "\r\n\r\n" + Footer;
 
+            _rootCommand.Handler = CommandHandler.Create(DoWork);
 
-            _fluentCommandLineParser.Setup(arg => arg.CsvDirectory)
-                .As("csv")
-                .WithDescription(
-                    "Directory to save CSV formatted results to. Be sure to include the full path in double quotes");
-            _fluentCommandLineParser.Setup(arg => arg.CsvName)
-                .As("csvf")
-                .WithDescription(
-                    "File name to save CSV formatted results to. When present, overrides default name");
+            await _rootCommand.InvokeAsync(args);
+        }
 
-
-
-            _fluentCommandLineParser.Setup(arg => arg.JsonDirectory)
-                .As("json")
-                .WithDescription(
-                    "Directory to save json representation to. Use --pretty for a more human readable layout");
-
-            _fluentCommandLineParser.Setup(arg => arg.JsonPretty)
-                .As("pretty")
-                .WithDescription(
-                    "When exporting to json, use a more human readable layout\r\n").SetDefault(false);
-
-
-            _fluentCommandLineParser.Setup(arg => arg.Quiet)
-                .As('q')
-                .WithDescription(
-                    "Only show the filename being processed vs all output. Useful to speed up exporting to json and/or csv\r\n")
-                .SetDefault(false);
-
-       
-
-            var header =
-                $"RecentFileCacheParser version {Assembly.GetExecutingAssembly().GetName().Version}" +
-                "\r\n\r\nAuthor: Eric Zimmerman (saericzimmerman@gmail.com)" +
-                "\r\nhttps://github.com/EricZimmerman/RecentFileCacheParser";
-
-
-            var footer = @"Examples: RecentFileCacheParser.exe -f ""C:\Temp\RecentFileCache.bcf"" --csv ""c:\temp""" +
-                         "\r\n\t " +
-                         @" RecentFileCacheParser.exe -f ""C:\Temp\RecentFileCache.bcf"" --json ""D:\jsonOutput"" --jsonpretty" +
-                         "\r\n\t " +
-                         "\r\n\t" +
-                         "  Short options (single letter) are prefixed with a single dash. Long commands are prefixed with two dashes\r\n";
-
-            _fluentCommandLineParser.SetupHelp("?", "help")
-                .WithHeader(header)
-                .Callback(text => _logger.Info(text + "\r\n" + footer));
-
-            var result = _fluentCommandLineParser.Parse(args);
-
-            if (result.HelpCalled)
+        public static void DoWork(string f, string csv, string csvf, string json, bool pretty, bool q)
+        {
+            if (f.IsNullOrEmpty())
             {
-                return;
-            }
+                var helpBld = new HelpBuilder(LocalizationResources.Instance, Console.WindowWidth);
+                var hc = new HelpContext(helpBld, _rootCommand, Console.Out);
 
-            if (result.HasErrors)
-            {
-                _logger.Error("");
-                _logger.Error(result.ErrorText);
-
-                _fluentCommandLineParser.HelpOption.ShowHelp(_fluentCommandLineParser.Options);
-
-                return;
-            }
-
-            if (_fluentCommandLineParser.Object.File.IsNullOrEmpty())
-            {
-                _fluentCommandLineParser.HelpOption.ShowHelp(_fluentCommandLineParser.Options);
+                helpBld.Write(hc);
 
                 _logger.Warn("-f is required. Exiting");
                 return;
             }
 
-            if (_fluentCommandLineParser.Object.File.IsNullOrEmpty() == false &&
-                !File.Exists(_fluentCommandLineParser.Object.File))
+            if (f.IsNullOrEmpty() == false &&
+                !File.Exists(f))
             {
-                _logger.Warn($"File '{_fluentCommandLineParser.Object.File}' not found. Exiting");
+                _logger.Warn($"File '{f}' not found. Exiting");
                 return;
             }
-
-
-            _logger.Info(header);
+            _logger.Info(Header);
             _logger.Info("");
             _logger.Info($"Command line: {string.Join(" ", Environment.GetCommandLineArgs().Skip(1))}\r\n");
 
@@ -143,20 +129,18 @@ namespace RecentFileCacheParser
 
             try
             {
-                if (_fluentCommandLineParser.Object.Quiet == false)
+                if (q == false)
                 {
-                    _logger.Warn($"Processing '{_fluentCommandLineParser.Object.File}'");
+                    _logger.Warn($"Processing '{f}'");
                     _logger.Info("");
                 }
-
-              
 
                 var sw = new Stopwatch();
                 sw.Start();
 
-                var rfc = RecentFileCache.RecentFileCache.LoadFile(_fluentCommandLineParser.Object.File);
+                var rfc = RecentFileCache.RecentFileCache.LoadFile(f);
 
-                if (_fluentCommandLineParser.Object.Quiet == false)
+                if (q == false)
                 {
                     _logger.Error($"Source file: {rfc.SourceFile}");
                     _logger.Info($"  Source created:  {rfc.SourceCreated.ToString(_dateTimeFormat)} ");
@@ -175,7 +159,7 @@ namespace RecentFileCacheParser
 
                 sw.Stop();
 
-                if (_fluentCommandLineParser.Object.Quiet)
+                if (q)
                 {
                     _logger.Info("");
                 }
@@ -183,7 +167,7 @@ namespace RecentFileCacheParser
                 _logger.Info(
                     $"---------- Processed '{rfc.SourceFile}' in {sw.Elapsed.TotalSeconds:N8} seconds ----------");
 
-                if (_fluentCommandLineParser.Object.Quiet == false)
+                if (q == false)
                 {
                     _logger.Info("\r\n");
                 }
@@ -192,50 +176,44 @@ namespace RecentFileCacheParser
                 {
                     StreamWriter sw1 = null;
 
-                    if (_fluentCommandLineParser.Object.CsvDirectory?.Length > 0)
+                    if (csv?.Length > 0)
                     {
-                        if (Directory.Exists(_fluentCommandLineParser.Object.CsvDirectory) == false)
+                        if (Directory.Exists(csv) == false)
                         {
                             _logger.Warn(
-                                $"'{_fluentCommandLineParser.Object.CsvDirectory} does not exist. Creating...'");
-                            Directory.CreateDirectory(_fluentCommandLineParser.Object.CsvDirectory);
+                                $"'{csv} does not exist. Creating...'");
+                            Directory.CreateDirectory(csv);
                         }
 
                         var outName =
                             $"{DateTimeOffset.Now:yyyyMMddHHmmss}_RecentFileCacheParser_Output.csv";
 
-                        if (_fluentCommandLineParser.Object.CsvName.IsNullOrEmpty() == false)
+                        if (csvf.IsNullOrEmpty() == false)
                         {
-                            outName = Path.GetFileName(_fluentCommandLineParser.Object.CsvName);
+                            outName = Path.GetFileName(csvf);
                         }
 
-                        var outFile = Path.Combine(_fluentCommandLineParser.Object.CsvDirectory, outName);
-
+                        var outFile = Path.Combine(csv, outName);
                    
-
-                        _fluentCommandLineParser.Object.CsvDirectory =
-                            Path.GetFullPath(outFile);
                         _logger.Warn(
                             $"CSV output will be saved to '{Path.GetFullPath(outFile)}'");
 
                         try
                         {
                             sw1 = new StreamWriter(outFile);
-                            var csv = new CsvWriter(sw1,CultureInfo.InvariantCulture);
+                            var csvWriter = new CsvWriter(sw1,CultureInfo.InvariantCulture);
 
-
-
-                            var foo = csv.Context.AutoMap<CsvOut>();
+                            var foo = csvWriter.Context.AutoMap<CsvOut>();
                             foo.Map(t => t.SourceAccessed)
                                 .Convert(t => t.Value.SourceAccessed.ToString(_dateTimeFormat));
                             foo.Map(t => t.SourceCreated).Convert(t => t.Value.SourceCreated.ToString(_dateTimeFormat));
                             foo.Map(t => t.SourceModified)
                                 .Convert(t => t.Value.SourceModified.ToString(_dateTimeFormat));
 
-                            csv.WriteHeader(typeof(CsvOut));
-                            csv.NextRecord();
+                            csvWriter.WriteHeader(typeof(CsvOut));
+                            csvWriter.NextRecord();
 
-                            csv.WriteRecords(GetCsvFormat(rfc));
+                            csvWriter.WriteRecords(GetCsvFormat(rfc));
                         }
                         catch (Exception ex)
                         {
@@ -244,19 +222,19 @@ namespace RecentFileCacheParser
                         }
                     }
 
-                    if (_fluentCommandLineParser.Object.JsonDirectory?.Length > 0)
+                    if (json?.Length > 0)
                     {
-                        if (Directory.Exists(_fluentCommandLineParser.Object.JsonDirectory) == false)
+                        if (Directory.Exists(json) == false)
                         {
                             _logger.Warn(
-                                $"'{_fluentCommandLineParser.Object.JsonDirectory} does not exist. Creating...'");
-                            Directory.CreateDirectory(_fluentCommandLineParser.Object.JsonDirectory);
+                                $"'{json} does not exist. Creating...'");
+                            Directory.CreateDirectory(json);
                         }
 
-                        _logger.Warn($"Saving json output to '{_fluentCommandLineParser.Object.JsonDirectory}'");
+                        _logger.Warn($"Saving json output to '{json}'");
 
-                        SaveJson(rfc, _fluentCommandLineParser.Object.JsonPretty,
-                            _fluentCommandLineParser.Object.JsonDirectory);
+                        SaveJson(rfc, pretty,
+                            json);
                     }
 
                     //Close CSV stuff
@@ -272,15 +250,15 @@ namespace RecentFileCacheParser
             catch (UnauthorizedAccessException ua)
             {
                 _logger.Error(
-                    $"Unable to access '{_fluentCommandLineParser.Object.File}'. Are you running as an administrator? Error: {ua.Message}");
+                    $"Unable to access '{f}'. Are you running as an administrator? Error: {ua.Message}");
             }
             catch (Exception ex)
             {
                 _logger.Error(
-                    $"Error processing file '{_fluentCommandLineParser.Object.File}' Please send it to saericzimmerman@gmail.com. Error: {ex.Message}");
+                    $"Error processing file '{f}' Please send it to saericzimmerman@gmail.com. Error: {ex.Message}");
             }
         }
-
+        
         private static List<CsvOut> GetCsvFormat(RecentFileCacheFile rcf)
         {
             var csOut = new List<CsvOut>();
