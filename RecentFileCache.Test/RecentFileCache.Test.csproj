@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net462;net6.0</TargetFrameworks>
     <AssemblyTitle>RecentFileCache.Test</AssemblyTitle>
     <Product>RecentFileCache.Test</Product>
-    <Copyright>Copyright © 2022</Copyright>
+    <Copyright>Eric Zimmerman</Copyright>
     <LangVersion>10</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.*" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.*" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Files\NotARecentFileCache.bcf" />
@@ -16,7 +16,7 @@
     <None Include="Files\RecentFileCache.bcf" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="6.2.0" />
+    <PackageReference Include="FluentAssertions" Version="6.3.0" />
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>

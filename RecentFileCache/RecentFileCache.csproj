@@ -3,7 +3,7 @@
     <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
     <AssemblyTitle>RecentFileCache</AssemblyTitle>
     <Product>RecentFileCache</Product>
-    <Copyright>Copyright © 2022</Copyright>
+    <Copyright>Eric Zimmerman</Copyright>
     <LangVersion>10</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
