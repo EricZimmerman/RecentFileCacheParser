@@ -7,10 +7,6 @@
     <LangVersion>10</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.*" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Files\NotARecentFileCache.bcf" />
     <None Include="Files\RecentFileCache 2.bcf" />
     <None Include="Files\RecentFileCache.bcf" />
@@ -18,7 +14,6 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.3.0" />
     <PackageReference Include="NUnit" Version="3.13.2" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RecentFileCache\RecentFileCache.csproj" />
