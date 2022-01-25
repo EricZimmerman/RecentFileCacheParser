@@ -6,8 +6,5 @@
     <Copyright>Eric Zimmerman</Copyright>
     <LangVersion>10</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
 
 </Project>
