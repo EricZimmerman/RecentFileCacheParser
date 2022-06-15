@@ -40,6 +40,8 @@ internal class Program
                                    "    Short options (single letter) are prefixed with a single dash. Long commands are prefixed with two dashes";
 
     private static RootCommand _rootCommand;
+
+    private static DateTimeOffset ts = DateTimeOffset.UtcNow;
         
     public static bool IsAdministrator()
     {
@@ -240,7 +242,7 @@ internal class Program
                     }
 
                     var outName =
-                        $"{DateTimeOffset.Now:yyyyMMddHHmmss}_RecentFileCacheParser_Output.csv";
+                        $"{ts:yyyyMMddHHmmss}_RecentFileCacheParser_Output.csv";
 
                     if (csvf.IsNullOrEmpty() == false)
                     {
@@ -351,7 +353,7 @@ internal class Program
             }
 
             var outName =
-                $"{DateTimeOffset.UtcNow:yyyyMMddHHmmss}_{Path.GetFileName(rfc.SourceFile)}.json";
+                $"{ts:yyyyMMddHHmmss}_{Path.GetFileName(rfc.SourceFile)}.json";
             var outFile = Path.Combine(outDir, outName);
 
             DumpToJson(rfc, pretty, outFile);

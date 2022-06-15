@@ -12,8 +12,8 @@
     <None Include="Files\RecentFileCache.bcf" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="6.3.0" />
-    <PackageReference Include="NUnit" Version="3.13.2" />
+    <PackageReference Include="FluentAssertions" Version="6.7.0" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RecentFileCache\RecentFileCache.csproj" />
