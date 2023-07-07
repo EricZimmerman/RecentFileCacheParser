@@ -5,6 +5,31 @@
     <Product>RecentFileCache</Product>
     <Copyright>Eric Zimmerman</Copyright>
     <LangVersion>10</LangVersion>
+    <Description>Parses Windows RecentFileCache</Description>
+    <PackageProjectUrl>https://github.com/EricZimmerman/RecentFileCacheParser</PackageProjectUrl>
+    <Version>1.5.1</Version>
+
+    <PackageTags>RecentFileCache</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <!-- If all members are not documented, you can disable the compiler warnings -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    
+    
   </PropertyGroup>
+  
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath=""/>
+    <None Include="../icon.png" Pack="true" PackagePath=""/>
+    <PackageReference Include="DotNet.ReproducibleBuilds" Version="1.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="MinVer" Version="4.3.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
 </Project>
