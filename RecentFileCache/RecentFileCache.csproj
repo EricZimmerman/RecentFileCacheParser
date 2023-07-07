@@ -4,6 +4,8 @@
     <AssemblyTitle>RecentFileCache</AssemblyTitle>
     <Product>RecentFileCache</Product>
     <Copyright>Eric Zimmerman</Copyright>
+    <Authors>Eric Zimmerman</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <LangVersion>10</LangVersion>
     <Description>Parses Windows RecentFileCache</Description>
     <PackageProjectUrl>https://github.com/EricZimmerman/RecentFileCacheParser</PackageProjectUrl>
