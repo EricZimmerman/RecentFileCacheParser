@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net6.0;net9.0</TargetFrameworks>
     <AssemblyTitle>RecentFileCache</AssemblyTitle>
     <Product>RecentFileCache</Product>
     <Copyright>Eric Zimmerman</Copyright>
@@ -24,11 +24,11 @@
   <ItemGroup>
     <None Include="../README.md" Pack="true" PackagePath=""/>
     <None Include="../icon.png" Pack="true" PackagePath=""/>
-    <PackageReference Include="DotNet.ReproducibleBuilds" Version="1.1.1">
+    <PackageReference Include="DotNet.ReproducibleBuilds" Version="1.2.25">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MinVer" Version="4.3.0">
+    <PackageReference Include="MinVer" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
