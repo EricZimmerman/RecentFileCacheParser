@@ -13,7 +13,7 @@
     <None Include="Files\RecentFileCache.bcf" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="7.0.0" />
+    <PackageReference Include="FluentAssertions" Version="[7.0.0,8.0.0)" />
     <PackageReference Include="NUnit" Version="4.3.2" />
   </ItemGroup>
   <ItemGroup>
