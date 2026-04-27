@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net6.0;net9.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyTitle>RecentFileCache</AssemblyTitle>
     <Product>RecentFileCache</Product>
     <Copyright>Eric Zimmerman</Copyright>
@@ -9,7 +9,7 @@
     <LangVersion>10</LangVersion>
     <Description>Parses Windows RecentFileCache</Description>
     <PackageProjectUrl>https://github.com/EricZimmerman/RecentFileCacheParser</PackageProjectUrl>
-    <Version>1.5.2</Version>
+    <Version>2026.5.0</Version>
 
     <PackageTags>RecentFileCache</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -24,11 +24,11 @@
   <ItemGroup>
     <None Include="../README.md" Pack="true" PackagePath=""/>
     <None Include="../icon.png" Pack="true" PackagePath=""/>
-    <PackageReference Include="DotNet.ReproducibleBuilds" Version="1.2.25">
+    <PackageReference Include="DotNet.ReproducibleBuilds" Version="2.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MinVer" Version="6.0.0">
+    <PackageReference Include="MinVer" Version="7.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

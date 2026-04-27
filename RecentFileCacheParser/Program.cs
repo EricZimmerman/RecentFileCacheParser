@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Help;
-using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Invocation;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -27,7 +27,7 @@ internal class Program
     private static readonly string _dateTimeFormat = "yyyy-MM-dd HH:mm:ss";
         
     private static string Header =
-        $"RecentFileCacheParser version {Assembly.GetExecutingAssembly().GetName().Version}" +
+        $"RecentFileCacheParser version {Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}" +
         "\r\n\r\nAuthor: Eric Zimmerman (saericzimmerman@gmail.com)" +
         "\r\nhttps://github.com/EricZimmerman/RecentFileCacheParser";
 
@@ -60,39 +60,59 @@ internal class Program
     {
         ExceptionlessClient.Default.Startup("Wdlq68AwLteBtuqOwNv5rgphcMxzKuHKJQAVK5JN");
 
+        var fOpt = new Option<string>("-f")
+        {
+            Description = "File to process. Required"
+        };
+        
+        var csvOpt = new Option<string>(
+            "--csv")
+        {
+            Description = "Directory to save CSV formatted results to. Be sure to include the full path in double quotes"
+        
+        };
+
+        var csvfOpt = new Option<string>(
+            "--csvf")
+        {
+            Description   = "File name to save CSV formatted results to. When present, overrides default name"
+        };
+        
+        var jsonfOpt = new Option<string>(
+            "--json")
+        {
+            Description   = "Directory to save json representation to. Use --pretty for a more human readable layout"
+        };
+        
+        var prettyOpt = new Option<bool>("-q")
+        {
+            Description = "When exporting to json, use a more human readable layout",
+            DefaultValueFactory = _ => false
+        };
+        
+        var qOpt = new Option<bool>("-q")
+        {
+            Description = "Only show the filename being processed vs all output. Useful to speed up exporting to JSON and/or CSV",
+            DefaultValueFactory = _ => false
+        };
+        
         _rootCommand = new RootCommand
         {
-            new Option<string>(
-                "-f",
-                "File to process. Required"),
-             
-            new Option<string>(
-                "--csv",
-                "Directory to save CSV formatted results to. Be sure to include the full path in double quotes"),
-
-            new Option<string>(
-                "--csvf",
-                "File name to save CSV formatted results to. When present, overrides default name"),
-
-            new Option<string>(
-                "--json",
-                "Directory to save json representation to. Use --pretty for a more human readable layout"),
-            new Option<bool>(
-                "--pretty",
-                getDefaultValue:()=>false,
-                "When exporting to json, use a more human readable layout"),
-            new Option<bool>(
-                "-q",
-                getDefaultValue:()=>false,
-                "Only show the filename being processed vs all output. Useful to speed up exporting to json and/or csv"),
-
+            fOpt,
+            csvOpt,
+            csvfOpt,
+            jsonfOpt,
+            prettyOpt,
+            qOpt
         };
 
         _rootCommand.Description = Header + "\r\n\r\n" + Footer;
 
-        _rootCommand.Handler = CommandHandler.Create(DoWork);
+        
+        _rootCommand.SetAction(result => DoWork(result.GetValue(fOpt), result.GetValue(csvOpt), result.GetValue(csvfOpt),
+            result.GetValue(jsonfOpt), result.GetValue(prettyOpt), result.GetValue(qOpt)));
 
-        await _rootCommand.InvokeAsync(args);
+        var foo = _rootCommand.Parse(args).InvokeAsync();
         
         Log.CloseAndFlush();
     }
@@ -137,18 +157,6 @@ internal class Program
 
         var template = "{Message:lj}{NewLine}{Exception}";
 
-        // if (debug)
-        // {
-        //     levelSwitch.MinimumLevel = LogEventLevel.Debug;
-        //     template = "[{Timestamp:HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}";
-        // }
-        //
-        // if (trace)
-        // {
-        //     levelSwitch.MinimumLevel = LogEventLevel.Verbose;
-        //     template = "[{Timestamp:HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}";
-        // }
-        
         var conf = new LoggerConfiguration()
             .WriteTo.Console(outputTemplate: template,formatProvider: formatter)
             .MinimumLevel.ControlledBy(levelSwitch);
@@ -157,12 +165,10 @@ internal class Program
         
         if (f.IsNullOrEmpty())
         {
-            var helpBld = new HelpBuilder(LocalizationResources.Instance, Console.WindowWidth);
-            var hc = new HelpContext(helpBld, _rootCommand, Console.Out);
+            var aaa = new CustomHelpAction(new HelpAction());
+            aaa.Invoke(_rootCommand.Parse("-f is required. Exiting"));
 
-            helpBld.Write(hc);
-
-            Log.Warning("-f is required. Exiting");
+           
             Console.WriteLine();
             return;
         }
@@ -366,6 +372,24 @@ internal class Program
 
     private static readonly string BaseDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
     
+    private class CustomHelpAction : SynchronousCommandLineAction
+    {
+        private readonly HelpAction _defaultHelp;
+
+        public CustomHelpAction(HelpAction action)
+        {
+            _defaultHelp = action;
+        }
+
+        public override int Invoke(ParseResult parseResult)
+        {
+            var result = _defaultHelp.Invoke(parseResult);
+
+            Log.Warning("{Msg}", string.Join(" ",parseResult.Tokens));
+
+            return result;
+        }
+    }
 }
 
 public sealed class CsvOut
