@@ -78,13 +78,13 @@ internal class Program
             Description   = "File name to save CSV formatted results to. When present, overrides default name"
         };
         
-        var jsonfOpt = new Option<string>(
+        var jsonOpt = new Option<string>(
             "--json")
         {
             Description   = "Directory to save json representation to. Use --pretty for a more human readable layout"
         };
         
-        var prettyOpt = new Option<bool>("-q")
+        var prettyOpt = new Option<bool>("--pretty")
         {
             Description = "When exporting to json, use a more human readable layout",
             DefaultValueFactory = _ => false
@@ -101,7 +101,7 @@ internal class Program
             fOpt,
             csvOpt,
             csvfOpt,
-            jsonfOpt,
+            jsonOpt,
             prettyOpt,
             qOpt
         };
@@ -110,7 +110,7 @@ internal class Program
 
         
         _rootCommand.SetAction(result => DoWork(result.GetValue(fOpt), result.GetValue(csvOpt), result.GetValue(csvfOpt),
-            result.GetValue(jsonfOpt), result.GetValue(prettyOpt), result.GetValue(qOpt)));
+            result.GetValue(jsonOpt), result.GetValue(prettyOpt), result.GetValue(qOpt)));
 
         var foo = _rootCommand.Parse(args).InvokeAsync();
         
