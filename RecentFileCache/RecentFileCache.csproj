@@ -1,15 +1,16 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyTitle>RecentFileCache</AssemblyTitle>
     <Product>RecentFileCache</Product>
-    <Copyright>Eric Zimmerman</Copyright>
     <Authors>Eric Zimmerman</Authors>
+    <Company>Eric Zimmerman</Company>
+    <Copyright>Eric Zimmerman</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <LangVersion>10</LangVersion>
-    <Description>Parses Windows RecentFileCache</Description>
+    <Description>Parses Windows RecentFileCache.bcf files</Description>
     <PackageProjectUrl>https://github.com/EricZimmerman/RecentFileCacheParser</PackageProjectUrl>
-    <Version>2026.5.0</Version>
+    <RepositoryUrl>https://github.com/EricZimmerman/RecentFileCacheParser</RepositoryUrl>
 
     <PackageTags>RecentFileCache</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -17,21 +18,19 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <!-- If all members are not documented, you can disable the compiler warnings -->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
-    
-    
   </PropertyGroup>
-  
+
   <ItemGroup>
     <None Include="../README.md" Pack="true" PackagePath=""/>
     <None Include="../icon.png" Pack="true" PackagePath=""/>
-    <PackageReference Include="DotNet.ReproducibleBuilds" Version="2.0.2">
+    <InternalsVisibleTo Include="RecentFileCache.Test" />
+    <PackageReference Include="DotNet.ReproducibleBuilds" Version="2.0.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MinVer" Version="7.0.0">
+    <PackageReference Include="MinVer" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
 </Project>

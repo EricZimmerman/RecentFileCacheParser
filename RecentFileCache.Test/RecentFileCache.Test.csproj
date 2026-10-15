@@ -1,22 +1,21 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <AssemblyTitle>RecentFileCache.Test</AssemblyTitle>
-    <Product>RecentFileCache.Test</Product>
-    <Copyright>Eric Zimmerman</Copyright>
+    <TargetFramework>net10.0</TargetFramework>
     <LangVersion>10</LangVersion>
     <IsPackable>false</IsPackable>
+    <Copyright>Eric Zimmerman</Copyright>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="Files\NotARecentFileCache.bcf" />
-    <None Include="Files\RecentFileCache 2.bcf" />
-    <None Include="Files\RecentFileCache.bcf" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="[7.0.0,8.0.0)" />
-    <PackageReference Include="NUnit" Version="4.3.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+    <PackageReference Include="NUnit" Version="5.0.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.3.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\RecentFileCache\RecentFileCache.csproj" />
+    <ProjectReference Include="../RecentFileCache/RecentFileCache.csproj" />
+    <!-- CliTests run the built RecentFileCacheParser.dll, which this copies next to the tests -->
+    <ProjectReference Include="../RecentFileCacheParser/RecentFileCacheParser.csproj" />
+    <!-- Real samples -->
+    <None Include="Files/**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

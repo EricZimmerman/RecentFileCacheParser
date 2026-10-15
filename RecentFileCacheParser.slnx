@@ -1,0 +1,8 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+  </Configurations>
+  <Project Path="RecentFileCache.Test/RecentFileCache.Test.csproj" />
+  <Project Path="RecentFileCache/RecentFileCache.csproj" />
+  <Project Path="RecentFileCacheParser/RecentFileCacheParser.csproj" />
+</Solution>

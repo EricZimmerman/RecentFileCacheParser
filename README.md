@@ -17,13 +17,31 @@
     
     
     Examples: RecentFileCacheParser.exe -f "C:\Temp\RecentFileCache.bcf" --csv "c:\temp"
-              RecentFileCacheParser.exe -f "C:\Temp\RecentFileCache.bcf" --json "D:\jsonOutput" --jsonpretty
+              RecentFileCacheParser.exe -f "C:\Temp\RecentFileCache.bcf" --json "D:\jsonOutput" --pretty
     
               Short options (single letter) are prefixed with a single dash. Long commands are prefixed with two dashes
 
 ## Documentation
 
-Parses RecentFileCacheParser.bcf files.
+Parses RecentFileCache.bcf files (Windows 7 and Server 2008 R2, `C:\Windows\AppCompat\Programs\RecentFileCache.bcf`), which list executables that ran recently.
+
+The header holds a CRC32 of the rest of the file. RecentFileCacheParser checks it and reports a mismatch, which means the file was modified or damaged. Damaged entries are reported and every entry that can be read is still listed.
+
+Exit code 0 means success. Exit code 1 means invalid arguments, a file that is not a RecentFileCache.bcf file, or a failed export.
+
+The .NET 10 build runs on Linux and macOS.
+
+## RecentFileCache NuGet package
+
+The parser is also available as the [RecentFileCache](https://www.nuget.org/packages/RecentFileCache) NuGet package:
+
+```csharp
+var rfc = RecentFileCache.RecentFileCache.LoadFile(@"C:\Temp\RecentFileCache.bcf");
+foreach (var name in rfc.FileNames) Console.WriteLine(name);
+// rfc.ChecksumValid, rfc.ParseErrors
+```
+
+`LoadFile` throws `RecentFileCacheParseException` when the data is too small or has the wrong signature; other problems are listed in `ParseErrors`.
 
 # Download Eric Zimmerman's Tools
 
