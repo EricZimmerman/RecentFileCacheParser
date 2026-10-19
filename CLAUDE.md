@@ -49,3 +49,4 @@ All in `RecentFileCacheParser/Program.cs`. `Main` awaits `InvokeAsync` on a `Sys
 - Versions are `yyyy.mm.x`.
 - `.github/workflows/publish.yml` (identical to GuidMapping's) packs, validates and tests on PRs and pushes to `master`, and pushes to NuGet.org when a GitHub Release is published, using trusted publishing (`NuGet/login` with the `NUGET_USER` repo variable).
 - Dependabot (`.github/dependabot.yml`) opens monthly PRs for GitHub Actions and NuGet updates.
+- Release builds are staged, signed and zipped by `Build-ZimmermanTools.ps1` in the get-zimmermantools repository (cloned next to this one). Its program table says what goes in this tool's download zip (the files taken from the build, folders copied from the repositories, files kept from the current release zip); a new output file, a content folder or a change in how the tool is built (single file, another framework) needs that entry updated.
