@@ -5,7 +5,7 @@
     <Product>RecentFileCache</Product>
     <Authors>Eric Zimmerman</Authors>
     <Company>Eric Zimmerman</Company>
-    <Copyright>Eric Zimmerman</Copyright>
+    <Copyright>Eric R. Zimmerman 2027</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <LangVersion>10</LangVersion>
     <Description>Parses Windows RecentFileCache.bcf files</Description>
