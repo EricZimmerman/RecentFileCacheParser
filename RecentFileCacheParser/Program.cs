@@ -304,7 +304,8 @@ internal class Program
             return 1;
         }
 
-        var exitCode = 0;
+        //a file that did not parse completely (as in PECmd): what could be read is still exported
+        var exitCode = rfc.ParsingError ? 1 : 0;
 
         if (csv?.Length > 0 && !SaveCsv(rfc, csv, csvf))
         {

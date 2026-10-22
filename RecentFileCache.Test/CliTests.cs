@@ -88,15 +88,16 @@ public class CliTests
     }
 
     [Test]
-    public void DamagedFileIsParsedWithWarnings()
+    public void DamagedFileIsParsedWithWarningsAndExitsWithOne()
     {
         var damaged = Path.Combine(_dir, "damaged.bcf");
         var data = File.ReadAllBytes(RecentFileCacheTests.Sample("RecentFileCache 2.bcf"));
         File.WriteAllBytes(damaged, data.Take(data.Length - 10).ToArray());
 
-        var (exitCode, output) = Run("-f", damaged);
+        var (exitCode, output) = Run("-f", damaged, "--csv", Path.Combine(_dir, "csv"), "--csvf", "out.csv");
 
-        exitCode.Should().Be(0);
+        exitCode.Should().Be(1, "the file did not parse completely");
+        File.ReadAllText(Path.Combine(_dir, "csv", "out.csv")).Should().Contain(@"c:\windows\psexesvc.exe", "what could be read is still exported");
         output.Should().Contain("(INVALID)");
         output.Should().Contain("Problems found while parsing");
         output.Should().Contain(@"c:\windows\psexesvc.exe");
