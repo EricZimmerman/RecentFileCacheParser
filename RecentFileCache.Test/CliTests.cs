@@ -159,7 +159,11 @@ public class CliTests
 
         using (new FileStream(locked, FileMode.Open, FileAccess.Read, FileShare.None))
         {
-            Run("-f", locked).ExitCode.Should().Be(1);
+            var (exitCode, output) = Run("-f", locked);
+
+            exitCode.Should().Be(1);
+            // reported as a file that can't be read, not as one to send in
+            output.Should().Contain("Unable to read").And.NotContain("Please send it");
         }
     }
 }

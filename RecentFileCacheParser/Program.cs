@@ -298,9 +298,15 @@ internal class Program
                 ua.Message);
             return 1;
         }
+        catch (IOException io) when (io is not EndOfStreamException)
+        {
+            //the file could not be read (locked, IO error): not a damaged file, and nothing to send in
+            Log.Error(io, "Unable to read {F}. Error: {Message}", f, io.Message);
+            return 1;
+        }
         catch (Exception ex)
         {
-            //IO errors reading the file, or an unexpected error
+            //an unexpected error
             Log.Error(ex, "Error processing file {F} Please send it to saericzimmerman@gmail.com. Error: {Message}", f,
                 ex.Message);
             return 1;
