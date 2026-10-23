@@ -79,16 +79,16 @@ public class CliTests
     }
 
     [Test]
-    public void FileThatIsNotARecentFileCacheExitsWithOne()
+    public void FileThatIsNotARecentFileCacheExitsWithZero()
     {
         var (exitCode, output) = Run("-f", RecentFileCacheTests.Sample("NotARecentFileCache.bcf"));
 
-        exitCode.Should().Be(1);
+        exitCode.Should().Be(0, "a bad file is not the tool's fault");
         output.Should().Contain("Invalid signature");
     }
 
     [Test]
-    public void DamagedFileIsParsedWithWarningsAndExitsWithOne()
+    public void DamagedFileIsParsedWithWarningsAndExitsWithZero()
     {
         var damaged = Path.Combine(_dir, "damaged.bcf");
         var data = File.ReadAllBytes(RecentFileCacheTests.Sample("RecentFileCache 2.bcf"));
@@ -96,7 +96,7 @@ public class CliTests
 
         var (exitCode, output) = Run("-f", damaged, "--csv", Path.Combine(_dir, "csv"), "--csvf", "out.csv");
 
-        exitCode.Should().Be(1, "the file did not parse completely");
+        exitCode.Should().Be(0, "a damaged file is listed with its problems, but is not the tool's fault");
         File.ReadAllText(Path.Combine(_dir, "csv", "out.csv")).Should().Contain(@"c:\windows\psexesvc.exe", "what could be read is still exported");
         output.Should().Contain("(INVALID)");
         output.Should().Contain("Problems found while parsing");
@@ -144,5 +144,22 @@ public class CliTests
         File.WriteAllText(blocker, "");
 
         Run("-f", RecentFileCacheTests.Sample("RecentFileCache.bcf"), "--csv", blocker, "-q").ExitCode.Should().Be(1);
+    }
+
+    [Test]
+    public void FileThatCantBeReadExitsWithOne()
+    {
+        if (OperatingSystem.IsWindows() == false)
+        {
+            Assert.Ignore("Locking a file for everyone else is Windows only");
+        }
+
+        var locked = Path.Combine(_dir, "locked.bcf");
+        File.Copy(RecentFileCacheTests.Sample("RecentFileCache.bcf"), locked);
+
+        using (new FileStream(locked, FileMode.Open, FileAccess.Read, FileShare.None))
+        {
+            Run("-f", locked).ExitCode.Should().Be(1);
+        }
     }
 }

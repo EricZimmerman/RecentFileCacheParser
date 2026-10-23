@@ -33,7 +33,7 @@ dotnet run --project RecentFileCacheParser -f net10.0 -- -f RecentFileCache.Test
 
 ## CLI
 
-All in `RecentFileCacheParser/Program.cs`. `Main` awaits `InvokeAsync` on a `System.CommandLine` `RootCommand` and returns `DoWork`'s exit code: 0 on success, 1 for a missing `-f`, a missing file, an unusable file, a file that did not parse completely (`ParsingError`: shown with its problems and still exported, as in PECmd) or a failed export. To add an option: create the `Option<T>`, add it to the `RootCommand` initializer and pass `result.GetValue(...)` into `DoWork`. `CsvOut` defines the CSV columns; keep the existing ones in order and add new ones at the end.
+All in `RecentFileCacheParser/Program.cs`. `Main` awaits `InvokeAsync` on a `System.CommandLine` `RootCommand` and returns `DoWork`'s exit code: 1 only when the tool fails (Eric, 2026-10-22, all CLI tools: a missing `-f`, a missing file, a file it can't read, a failed export, an unexpected error), otherwise 0, also for a file that is not a RecentFileCache.bcf or did not parse completely (`ParsingError`: shown with its problems and still exported). To add an option: create the `Option<T>`, add it to the `RootCommand` initializer and pass `result.GetValue(...)` into `DoWork`. `CsvOut` defines the CSV columns; keep the existing ones in order and add new ones at the end.
 
 ## Tests
 

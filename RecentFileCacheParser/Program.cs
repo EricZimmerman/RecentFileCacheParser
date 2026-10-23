@@ -289,7 +289,8 @@ internal class Program
         {
             Log.Error("Error processing file {F}: {Message} (offset 0x{Offset:X}, field {Field})", f, pe.Message,
                 pe.Offset, pe.Field);
-            return 1;
+            //not a RecentFileCache.bcf, or too damaged to read: a bad file, not the tool's fault (exit code 0)
+            return 0;
         }
         catch (UnauthorizedAccessException ua)
         {
@@ -299,13 +300,15 @@ internal class Program
         }
         catch (Exception ex)
         {
+            //IO errors reading the file, or an unexpected error
             Log.Error(ex, "Error processing file {F} Please send it to saericzimmerman@gmail.com. Error: {Message}", f,
                 ex.Message);
             return 1;
         }
 
-        //a file that did not parse completely (as in PECmd): what could be read is still exported
-        var exitCode = rfc.ParsingError ? 1 : 0;
+        //a file that did not parse completely is listed with its problems and what could be read is exported: exit code 0
+        //(1 only when the tool fails: arguments, a file it can't read, output it can't write)
+        var exitCode = 0;
 
         if (csv?.Length > 0 && !SaveCsv(rfc, csv, csvf))
         {
