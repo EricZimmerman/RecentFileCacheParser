@@ -64,6 +64,49 @@ public class CliTests
     }
 
     [Test]
+    public void ConsoleLog()
+    {
+        //Issues #259: --co saves the console messages to <yyyyMMddHHmmss>_RecentFileCacheParser_<version>_ConsoleLog.txt in the --csv directory, else the --json one
+        var csv = Path.Combine(_dir, "csv");
+        var json = Path.Combine(_dir, "json");
+
+        var (exitCode, output) = Run("-f", RecentFileCacheTests.Sample("RecentFileCache.bcf"), "--csv", csv, "--json", json, "--co");
+        exitCode.Should().Be(0, output);
+        var log = Directory.GetFiles(csv, "*_ConsoleLog.txt").Should().ContainSingle().Subject;
+        Path.GetFileName(log).Should().MatchRegex(@"^\d{14}_RecentFileCacheParser_\d+\.\d+\.\d+_ConsoleLog\.txt$");
+        output.Should().Contain("Console log: " + log);
+        Directory.GetFiles(json, "*_ConsoleLog.txt").Should().BeEmpty();
+        var text = File.ReadAllText(log);
+        text.Should().MatchRegex(@"\[\d\d:\d\d:\d\d\.\d{3} INF\] RecentFileCacheParser version ");
+        text.Should().Contain("Command line: -f ");
+        text.Should().Contain(@"c:\windows\bcuninstall.exe");
+
+        //only --json
+        (exitCode, output) = Run("-f", RecentFileCacheTests.Sample("RecentFileCache.bcf"), "--json", json, "--co");
+        exitCode.Should().Be(0, output);
+        Directory.GetFiles(json, "*_ConsoleLog.txt").Should().ContainSingle();
+    }
+
+    [Test]
+    public void NoConsoleLogWithoutCo()
+    {
+        var csv = Path.Combine(_dir, "csv");
+
+        var (exitCode, output) = Run("-f", RecentFileCacheTests.Sample("RecentFileCache.bcf"), "--csv", csv);
+        exitCode.Should().Be(0, output);
+        Directory.GetFiles(csv, "*_ConsoleLog.txt").Should().BeEmpty();
+        output.Should().NotContain("Console log:");
+    }
+
+    [Test]
+    public void ConsoleLogWithoutOutputDirectoryWarns()
+    {
+        var (exitCode, output) = Run("-f", RecentFileCacheTests.Sample("RecentFileCache.bcf"), "--co");
+        exitCode.Should().Be(0, output);
+        output.Should().Contain("--co: no output directory was given, so the console messages are not saved");
+    }
+
+    [Test]
     public void MissingFileOptionExitsWithOne()
     {
         var (exitCode, output) = Run();

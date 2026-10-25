@@ -126,6 +126,12 @@ internal class Program
             DefaultValueFactory = _ => false
         };
 
+        var coOpt = new Option<bool>("--co")
+        {
+            Description = "Save all console messages to <timestamp>_RecentFileCacheParser_<version>_ConsoleLog.txt in the output directory (the first of --csv, --json given)",
+            DefaultValueFactory = _ => false
+        };
+
         _rootCommand = new RootCommand
         {
             fOpt,
@@ -133,14 +139,15 @@ internal class Program
             csvfOpt,
             jsonOpt,
             prettyOpt,
-            qOpt
+            qOpt,
+            coOpt
         };
 
         _rootCommand.Description = Header + "\r\n\r\n" + Footer;
 
 
         _rootCommand.SetAction(result => DoWork(result.GetValue(fOpt), result.GetValue(csvOpt),
-            result.GetValue(csvfOpt), result.GetValue(jsonOpt), result.GetValue(prettyOpt), result.GetValue(qOpt)));
+            result.GetValue(csvfOpt), result.GetValue(jsonOpt), result.GetValue(prettyOpt), result.GetValue(qOpt), result.GetValue(coOpt)));
 
         var exitCode = await _rootCommand.Parse(args).InvokeAsync();
 
@@ -162,8 +169,9 @@ internal class Program
         {
             if (arg is DateTimeOffset)
             {
+                //an explicit format (the log file's {Timestamp:HH:mm:ss.fff}) wins over the default
                 var size = (DateTimeOffset)arg;
-                return size.ToString(_dateTimeFormat);
+                return size.ToString(string.IsNullOrEmpty(format) ? _dateTimeFormat : format);
             }
 
             var formattable = arg as IFormattable;
@@ -182,7 +190,7 @@ internal class Program
     }
 
     /// <returns>0 on success. 1 when arguments are invalid, the file can't be parsed or an export fails</returns>
-    public static int DoWork(string f, string csv, string csvf, string json, bool pretty, bool q)
+    public static int DoWork(string f, string csv, string csvf, string json, bool pretty, bool q, bool co)
     {
         var levelSwitch = new LoggingLevelSwitch();
         var formatter =
@@ -193,6 +201,12 @@ internal class Program
         var conf = new LoggerConfiguration()
             .WriteTo.Console(outputTemplate: template, formatProvider: formatter)
             .MinimumLevel.ControlledBy(levelSwitch);
+
+        var consoleLog = co ? ConsoleLog.GetPath(ts, csv, json) : null;
+        if (consoleLog != null)
+        {
+            conf.WriteTo.File(consoleLog, outputTemplate: ConsoleLog.Template, formatProvider: formatter);
+        }
 
         Log.Logger = conf.CreateLogger();
 
@@ -216,6 +230,17 @@ internal class Program
         Console.WriteLine();
         Log.Information("Command line: {Args}", string.Join(" ", Environment.GetCommandLineArgs().Skip(1)));
         Console.WriteLine();
+
+        if (consoleLog != null)
+        {
+            Log.Information("Console log: {Path}", consoleLog);
+            Console.WriteLine();
+        }
+        else if (co)
+        {
+            Log.Warning("--co: no output directory was given, so the console messages are not saved");
+            Console.WriteLine();
+        }
 
         if (IsAdministrator() == false)
         {

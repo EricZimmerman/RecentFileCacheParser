@@ -6,7 +6,7 @@ means the file was modified or damaged. Results are shown on the console and can
 
 | | |
 |---|---|
-| **Version** | 2026.10.1 |
+| **Version** | 2026.10.2 |
 | **Download** | [.NET 10](https://download.ericzimmermanstools.com/net/RecentFileCacheParser.zip) (recommended) &middot; [.NET Framework 4.7.2](https://download.ericzimmermanstools.com/RecentFileCacheParser.zip) |
 | **All tools** | [ericzimmerman.github.io](https://ericzimmerman.github.io) or [Get-ZimmermanTools](https://download.ericzimmermanstools.com/Get-ZimmermanTools.zip), which downloads them all and keeps them current |
 | **Changes** | [ChangeLog](https://ericzimmerman.github.io/changelog/) |
@@ -31,6 +31,7 @@ Options:
   --json <json>   Directory to save json representation to. Use --pretty for a more human readable layout
   --pretty        When exporting to json, use a more human readable layout
   -q              Only show the filename being processed vs all output. Useful to speed up exporting to JSON and/or CSV
+  --co            Save all console messages to <timestamp>_RecentFileCacheParser_<version>_ConsoleLog.txt in the output directory (the first of --csv, --json given)
   -?, -h, --help  Show help and usage information
   --version       Show version information
 ```
@@ -85,6 +86,7 @@ are listed in `ParseErrors`.
 - A file that can't be read (for example locked by another process) is reported as "Unable to read" instead of asking
   for the file to be sent in.
 - Exit code 1 when the tool fails (it was always 0). Error reports include source file and line numbers.
+- 2026.10.2: `--co` saves all console messages to `<yyyyMMddHHmmss>_RecentFileCacheParser_<version>_ConsoleLog.txt` in the output directory (the first of `--csv`, `--json` given).
 
 The full list is in the [ChangeLog](https://ericzimmerman.github.io/changelog/).
 
