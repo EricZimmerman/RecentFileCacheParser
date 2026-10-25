@@ -31,7 +31,7 @@ Options:
   --json <json>   Directory to save json representation to. Use --pretty for a more human readable layout
   --pretty        When exporting to json, use a more human readable layout
   -q              Only show the filename being processed vs all output. Useful to speed up exporting to JSON and/or CSV
-  --co            Save all console messages to <timestamp>_RecentFileCacheParser_<version>_ConsoleLog.txt in the output directory (the first of --csv, --json given)
+  --co            When true, save all console messages to <timestamp>_RecentFileCacheParser_<version>_ConsoleLog.txt in the output directory (the first of --csv, --json given). Use --co false to turn it off
   -?, -h, --help  Show help and usage information
   --version       Show version information
 ```
@@ -86,7 +86,7 @@ are listed in `ParseErrors`.
 - A file that can't be read (for example locked by another process) is reported as "Unable to read" instead of asking
   for the file to be sent in.
 - Exit code 1 when the tool fails (it was always 0). Error reports include source file and line numbers.
-- 2026.10.2: `--co` saves all console messages to `<yyyyMMddHHmmss>_RecentFileCacheParser_<version>_ConsoleLog.txt` in the output directory (the first of `--csv`, `--json` given).
+- 2026.10.2: `--co` (on by default; `--co false` turns it off) saves all console messages to `<yyyyMMddHHmmss>_RecentFileCacheParser_<version>_ConsoleLog.txt` in the output directory (the first of `--csv`, `--json` given).
 
 The full list is in the [ChangeLog](https://ericzimmerman.github.io/changelog/).
 
