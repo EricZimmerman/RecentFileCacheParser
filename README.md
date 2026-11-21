@@ -6,7 +6,7 @@ means the file was modified or damaged. Results are shown on the console and can
 
 | | |
 |---|---|
-| **Version** | 2026.10.2 |
+| **Version** | 2026.11.0 |
 | **Download** | [.NET 10](https://download.ericzimmermanstools.com/net/RecentFileCacheParser.zip) (recommended) &middot; [.NET Framework 4.7.2](https://download.ericzimmermanstools.com/RecentFileCacheParser.zip) |
 | **All tools** | [ericzimmerman.github.io](https://ericzimmerman.github.io) or [Get-ZimmermanTools](https://download.ericzimmermanstools.com/Get-ZimmermanTools.zip), which downloads them all and keeps them current |
 | **Changes** | [ChangeLog](https://ericzimmerman.github.io/changelog/) |
@@ -77,6 +77,10 @@ are listed in `ParseErrors`.
 |---|---|
 | `0` | Success. A damaged file, or a file that isn't a RecentFileCache.bcf, is reported but is not a failure |
 | `1` | The tool failed: a missing `-f` or input file, a file it can't read (access denied, or locked by another process: reported as "Unable to read"), or a CSV or JSON export that can't be written |
+
+## What's new in 2026.11
+
+- Moved to CsvHelper 34, a rewrite of the CSV library; the CSV output is byte for byte the same as 2026.10's.
 
 ## What's new in 2026.10
 
