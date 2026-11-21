@@ -17,6 +17,7 @@ using Serilog;
 using Serilog.Core;
 using ServiceStack;
 using ServiceStack.Text;
+using CsvHelper;
 using CsvWriter = CsvHelper.CsvWriter;
 
 namespace RecentFileCacheParser;
@@ -370,16 +371,14 @@ internal class Program
 
             Log.Information("CSV output will be saved to {Path}", Path.GetFullPath(outFile));
 
-            using var streamWriter = new StreamWriter(outFile);
-            using var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture);
-
-            var map = csvWriter.Context.AutoMap<CsvOut>();
-            map.Map(t => t.SourceAccessed).Convert(t => t.Value.SourceAccessed.ToString(_dateTimeFormat));
-            map.Map(t => t.SourceCreated).Convert(t => t.Value.SourceCreated.ToString(_dateTimeFormat));
-            map.Map(t => t.SourceModified).Convert(t => t.Value.SourceModified.ToString(_dateTimeFormat));
+            //CsvHelper 34 options that keep CsvHelper 33's output (fields with leading or trailing spaces quoted)
+            using var csvWriter = CsvWriter.ToFile(outFile, new CsvWriterOptions
+            {
+                //33 quoted text that starts or ends with a space (not a tab, as CsvQuoting.WhenNeededOrWhitespace does)
+                ShouldQuote = (field, fieldType, fieldIndex, recordIndex) => field.Length > 0 && (field[0] == ' ' || field[field.Length - 1] == ' ')
+            });
 
             csvWriter.WriteHeader<CsvOut>();
-            csvWriter.NextRecord();
             csvWriter.WriteRecords(GetCsvFormat(rfc));
 
             return true;
@@ -460,11 +459,16 @@ internal class Program
     }
 }
 
-public sealed class CsvOut
+[CsvRecord]
+public sealed partial class CsvOut
 {
+    //the times are written in Program's fixed format (yyyy-MM-dd HH:mm:ss)
     public string SourceFile { get; set; }
+    [CsvFormat("yyyy-MM-dd HH:mm:ss")]
     public DateTimeOffset SourceCreated { get; set; }
+    [CsvFormat("yyyy-MM-dd HH:mm:ss")]
     public DateTimeOffset SourceModified { get; set; }
+    [CsvFormat("yyyy-MM-dd HH:mm:ss")]
     public DateTimeOffset SourceAccessed { get; set; }
 
     public string Filename { get; set; }
